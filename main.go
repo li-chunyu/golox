@@ -6,6 +6,10 @@ import (
 	"os"
 )
 
+var (
+	hadError = false
+)
+
 func main() {
 	if len(os.Args) > 2 {
 		fmt.Println("invalid arguments")
@@ -30,6 +34,9 @@ func runFile(src string) {
 	}
 
 	run(string(b))
+	if hadError {
+		os.Exit(65)
+	}
 }
 
 func runPrompt() {
@@ -45,9 +52,19 @@ func runPrompt() {
 			break
 		}
 		run(line)
+		hadError = false
 	}
 }
 
 func run(src string) {
 	fmt.Println(src)
+}
+
+func error(line int, msg string) {
+	report(line, "", msg)
+}
+
+func report(line int, where, msg string)  {
+	fmt.Printf("[line %v] Error %v: %v.\n", line, where, msg)
+	hadError = true
 }
