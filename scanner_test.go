@@ -50,7 +50,8 @@ func TestScanner(t *testing.T) {
 	assert.Equal(t, 2, len(s.toks))
 	assert.Equal(t, s.toks[0].typ, OR)
 
-	src = `var a= false`
+	src = `// this is a comment
+var a= false`
 	s = NewScanner(src)
 	s.scanTokens()
 	assert.Equal(t, 5, len(s.toks))
