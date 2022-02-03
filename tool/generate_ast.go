@@ -61,8 +61,8 @@ func defineVisitor(baseName string, types []string) string {
 
 	for _, t := range types {
 		ftype, _ := parseField(t)
-		src += fmt.Sprintf("    Visit%v%v(%v %v) interface{}\n",
-			strings.Title(ftype), strings.Title(baseName), strings.ToLower(baseName), strings.Title(baseName))
+		src += fmt.Sprintf("    Visit%v%v(%v *%v) interface{}\n",
+			strings.Title(ftype), strings.Title(baseName), strings.ToLower(baseName), strings.Title(ftype))
 	}
 
 	src += "}"
@@ -81,6 +81,9 @@ func defineType(baseName, className, fields string) string {
 		if ftype == "Object" {
 			ftype = "interface{}"
 		}
+		if ftype == "Token" {
+			ftype = "*Token"
+		}
 		src += fmt.Sprintf("    %v %v", fname, ftype)
 		src += fmt.Sprintln("")
 	}
@@ -92,6 +95,9 @@ func defineType(baseName, className, fields string) string {
 		ftype, fname := parseField(f)
 		if ftype == "Object" {
 			ftype = "interface{}"
+		}
+		if ftype == "Token" {
+			ftype = "*Token"
 		}
 		params = append(params, fmt.Sprintf("%v %v", fname, ftype))
 	}

@@ -1,10 +1,10 @@
 package main
 
 type ExprVisitor interface {
-	VisitBinaryExpr(expr Expr) interface{}
-	VisitGroupingExpr(expr Expr) interface{}
-	VisitLiteralExpr(expr Expr) interface{}
-	VisitUnaryExpr(expr Expr) interface{}
+	VisitBinaryExpr(expr *Binary) interface{}
+	VisitGroupingExpr(expr *Grouping) interface{}
+	VisitLiteralExpr(expr *Literal) interface{}
+	VisitUnaryExpr(expr *Unary) interface{}
 }
 
 type Expr interface {
@@ -13,11 +13,11 @@ type Expr interface {
 
 type Binary struct {
 	left     Expr
-	operator Token
+	operator *Token
 	right    Expr
 }
 
-func NewBinary(left Expr, operator Token, right Expr) Expr {
+func NewBinary(left Expr, operator *Token, right Expr) Expr {
 
 	expr := &Binary{
 		left:     left,
@@ -64,11 +64,11 @@ func (expr *Literal) Accept(v ExprVisitor) interface{} {
 }
 
 type Unary struct {
-	operator Token
+	operator *Token
 	right    Expr
 }
 
-func NewUnary(operator Token, right Expr) Expr {
+func NewUnary(operator *Token, right Expr) Expr {
 
 	expr := &Unary{
 		operator: operator,
