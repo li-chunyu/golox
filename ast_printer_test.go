@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -17,6 +16,5 @@ func TestAstPrinter(t *testing.T) {
 		NewGrouping(NewLiteral(45.67)),
 	)
 	s := expr.Accept(&AstPrinter{}).(string)
-	fmt.Println(s)
-	assert.NotEqual(t, 0, len(s))
+	assert.Equal(t, s, "(* (- 123) (group 45.67))")
 }
