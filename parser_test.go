@@ -25,4 +25,5 @@ func TestParserPanicMode(t *testing.T) {
 	p := NewParser(toks)
 	e := p.Parse()
 	fmt.Println(e.Accept(&AstPrinter{}))
+	assert.Equal(t, "(- 2 1)", e.Accept(&AstPrinter{}))
 }
