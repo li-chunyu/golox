@@ -1,5 +1,9 @@
 package main
 
+import (
+	"fmt"
+)
+
 type Parser struct {
 	toks    []*Token
 	current int
@@ -11,8 +15,16 @@ func NewParser(toks []*Token) *Parser {
 	}
 }
 
-func (p *Parser) Parse() Expr {
-	return p.expression()
+func (p *Parser) Parse() (e Expr) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println(err)
+			p.synchronize()
+			e = p.expression()
+		}
+	}()
+	e = p.expression()
+	return
 }
 
 func (p *Parser) expression() Expr {
@@ -82,7 +94,8 @@ func (p *Parser) primary() Expr {
 		p.consume(RIGHT_PAREN, "Expect ')' after expression.")
 		return NewGrouping(e)
 	}
-	panic("Error parser, invalid prime type.")
+	p.throwPanic(p.peek(), "Error parser, invalid prime type.")
+	return nil // avoid compiler error
 }
 
 func (p *Parser) match(types ...TokenType) bool {
@@ -99,8 +112,12 @@ func (p *Parser) consume(t TokenType, msg string) *Token {
 	if p.check(t) {
 		return p.advance()
 	}
-	// TODO, panic mode error handling.
-	panic("invalid type, TODO")
+	p.throwPanic(p.peek(), msg)
+	return nil // avoid compile error
+}
+
+func (p *Parser) peek() *Token {
+	return p.toks[p.current]
 }
 
 func (p *Parser) check(t TokenType) bool {
@@ -121,4 +138,41 @@ func (p *Parser) isAtEnd() bool {
 func (p *Parser) previous() *Token {
 	i := p.current - 1
 	return p.toks[i]
+}
+
+func (p *Parser) throwPanic(tok *Token, msg string) {
+	if tok.typ == EOF {
+		panic(errorMsg(tok.line, "at end", msg))
+	} else {
+		panic(errorMsg(tok.line, "at '"+tok.lexeme+"'", msg))
+	}
+}
+
+func (p *Parser) synchronize() {
+	p.advance()
+	for !p.isAtEnd() {
+		if p.previous().typ == SEMICOLON {
+			return
+		}
+
+		switch p.peek().typ {
+		case VAR:
+			fallthrough
+		case FUN:
+			fallthrough
+		case CLASS:
+			fallthrough
+		case FOR:
+			fallthrough
+		case IF:
+			fallthrough
+		case WHILE:
+			fallthrough
+		case PRINT:
+			fallthrough
+		case RETURN:
+			return
+		}
+		p.advance()
+	}
 }

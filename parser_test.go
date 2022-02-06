@@ -16,3 +16,13 @@ func TestParser(t *testing.T) {
 	fmt.Println(expr.Accept(&AstPrinter{}))
 	assert.Equal(t, "(- 1 (/ 6 2))", expr.Accept(&AstPrinter{}))
 }
+
+func TestParserPanicMode(t *testing.T) {
+	src := `1-(6/2;
+2-1;`
+	s := NewScanner(src)
+	toks := s.scanTokens()
+	p := NewParser(toks)
+	e := p.Parse()
+	fmt.Println(e.Accept(&AstPrinter{}))
+}
